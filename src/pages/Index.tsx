@@ -51,7 +51,7 @@ const Index = () => {
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-2">
             <BookOpen className="text-white h-8 w-8" />
-            <h1 className="text-2xl font-bold text-white">Math Match Masters</h1>
+            <h1 className="text-2xl font-bold text-white">Mestres da Matemática</h1>
           </div>
           {student && (
             <div className="flex items-center gap-2 bg-white/20 py-1 px-3 rounded-full">
@@ -68,7 +68,7 @@ const Index = () => {
       <main className="flex-grow container py-8 md:py-16">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-foreground">EEB PROFESSOR PEDRO TEIXEIRA BARROSO</h2>
-          <p className="text-lg text-muted-foreground mt-2">PROJETO DESENVOLVIDO pelo Prof. Genezio de Lavor</p>
+          <p className="text-lg text-muted-foreground mt-2">Projeto desenvolvido pelo Prof. Genezio de Lavor</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
