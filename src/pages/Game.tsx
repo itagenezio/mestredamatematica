@@ -162,6 +162,13 @@ const Game = () => {
       isCorrect
     });
     
+    // Play the appropriate sound
+    if (isCorrect) {
+      window.gameAudio.playCorrect();
+    } else {
+      window.gameAudio.playIncorrect();
+    }
+    
     setConnections(updatedConnections);
     setSelectedProblem(null);
   };
@@ -259,7 +266,7 @@ const Game = () => {
                     <div 
                       id={`problem-${problem.id}`}
                       className={`${
-                        isConnected ? 'card-blurred bg-softGreen' : 
+                        isConnected ? 'bg-softGreen' : 
                         selectedProblem === problem.id ? 'bg-primary/10 border-primary' : 'bg-white'
                       } rounded-lg p-4 mb-4 border-2 shadow-sm hover:shadow-md transition-all cursor-pointer w-full max-w-xs`}
                       onClick={() => handleProblemSelect(problem.id)}
@@ -301,6 +308,7 @@ const Game = () => {
                     x2={coords.x2}
                     y2={coords.y2}
                     className={`line ${getLineClass(connection)}`}
+                    strokeWidth={connection.isCorrect ? 4 : 3}
                   />
                 );
               })}
@@ -329,7 +337,7 @@ const Game = () => {
                     <div 
                       id={`answer-${answer}`}
                       className={`${
-                        isConnected ? 'card-blurred bg-softGreen' : 
+                        isConnected ? 'bg-softGreen' : 
                         selectedProblem ? 'bg-white hover:bg-primary/10 hover:border-primary' : 'bg-white'
                       } rounded-lg p-4 mb-4 border-2 shadow-sm hover:shadow-md transition-all ${
                         selectedProblem ? 'cursor-pointer' : 'cursor-default'

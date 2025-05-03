@@ -66,6 +66,11 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="flex-grow container py-8 md:py-16">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-foreground">EEB PROFESSOR PEDRO TEIXEIRA BARROSO</h2>
+          <p className="text-lg text-muted-foreground mt-2">PROJETO DESENVOLVIDO pelo Prof. Genezio de Lavor</p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {/* Left Column - Illustration */}
           <div className="flex justify-center">
@@ -135,7 +140,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-white py-4 shadow-inner">
         <div className="container text-center text-muted-foreground">
-          <p>Math Match Masters &copy; 2025 - Aprenda matemática de forma divertida!</p>
+          <p>Ita Tecnologia Educacional / Clube de Robotica Criativa de Itapipoca</p>
         </div>
       </footer>
 

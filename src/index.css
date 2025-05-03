@@ -88,13 +88,11 @@
 
   .line-correct {
     stroke: theme('colors.mathGreen');
-    stroke-width: 4;
     filter: drop-shadow(0 0 4px theme('colors.mathGreen'));
   }
 
   .line-incorrect {
     stroke: theme('colors.mathRed');
-    stroke-width: 4;
     animation: shake 0.5s;
   }
 
@@ -102,10 +100,5 @@
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
     20%, 40%, 60%, 80% { transform: translateX(4px); }
-  }
-
-  .card-blurred {
-    filter: blur(2px);
-    pointer-events: none;
   }
 }

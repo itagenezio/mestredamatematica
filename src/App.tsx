@@ -11,6 +11,16 @@ import Profile from "./pages/Profile";
 import Ranking from "./pages/Ranking";
 import NotFound from "./pages/NotFound";
 
+// Audio files for game sounds
+const correctSound = new Audio('/sounds/correct.mp3');
+const incorrectSound = new Audio('/sounds/incorrect.mp3');
+
+// Make audio available globally
+window.gameAudio = {
+  playCorrect: () => correctSound.play().catch(err => console.error("Audio error:", err)),
+  playIncorrect: () => incorrectSound.play().catch(err => console.error("Audio error:", err))
+};
+
 const queryClient = new QueryClient();
 
 const App = () => (
