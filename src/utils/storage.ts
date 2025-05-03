@@ -1,9 +1,31 @@
 
 import { Student, GameResult, Ranking } from "../types";
+import { supabase } from "@/integrations/supabase/client";
 
 // Student
-export const saveStudent = (student: Student): void => {
+export const saveStudent = async (student: Student): Promise<void> => {
+  // Save locally for offline use
   localStorage.setItem('currentStudent', JSON.stringify(student));
+  
+  try {
+    // Save to Supabase
+    const { error } = await supabase.from('students').insert({
+      id: student.id,
+      name: student.name,
+      grade: student.grade.toString(),
+      created_at: new Date().toISOString()
+    });
+    
+    if (error) {
+      console.error('Error saving student to Supabase:', error);
+    }
+  } catch (err) {
+    console.error('Failed to save student to Supabase:', err);
+    // Continue with local storage only
+  }
+  
+  // Also save to local collection for ranking display
+  saveStudentToCollection(student);
 };
 
 export const getStudent = (): Student | null => {
@@ -18,10 +40,30 @@ export const getStudent = (): Student | null => {
 };
 
 // Game Results
-export const saveGameResult = (result: GameResult): void => {
+export const saveGameResult = async (result: GameResult): Promise<void> => {
+  // Save locally
   const results = getGameResults();
   results.push(result);
   localStorage.setItem('gameResults', JSON.stringify(results));
+  
+  try {
+    // Save to Supabase
+    const { error } = await supabase.from('game_results').insert({
+      id: result.id,
+      student_id: result.studentId,
+      difficulty: result.difficulty,
+      correct_answers: result.correctAnswers,
+      total_time: result.totalTime,
+      score: result.score,
+      created_at: new Date().toISOString()
+    });
+    
+    if (error) {
+      console.error('Error saving game result to Supabase:', error);
+    }
+  } catch (err) {
+    console.error('Failed to save game result to Supabase:', err);
+  }
 };
 
 export const getGameResults = (): GameResult[] => {
@@ -95,4 +137,54 @@ export const saveStudentToCollection = (student: Student): void => {
   }
   
   localStorage.setItem('allStudents', JSON.stringify(allStudents));
+};
+
+// Function to fetch rankings from Supabase
+export const fetchRankingsFromSupabase = async (grade?: number): Promise<Ranking[]> => {
+  try {
+    let query = supabase
+      .from('game_results')
+      .select(`
+        id,
+        score,
+        total_time,
+        difficulty,
+        students (
+          id,
+          name,
+          grade
+        )
+      `);
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Error fetching rankings from Supabase:', error);
+      return getRankings(grade); // Fall back to local storage
+    }
+    
+    if (!data) {
+      return getRankings(grade);
+    }
+    
+    const rankings: Ranking[] = data
+      .filter(item => item.students && (!grade || item.students.grade === grade.toString()))
+      .map(item => ({
+        studentId: item.students.id,
+        studentName: item.students.name,
+        grade: parseInt(item.students.grade) as any,
+        score: item.score,
+        time: item.total_time,
+        difficulty: item.difficulty as any
+      }));
+
+    // Sort rankings
+    return rankings.sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return a.time - b.time;
+    });
+  } catch (err) {
+    console.error('Failed to fetch rankings from Supabase:', err);
+    return getRankings(grade); // Fall back to local storage
+  }
 };

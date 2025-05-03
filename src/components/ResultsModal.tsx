@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DifficultyLevel } from "@/types";
 import { Award, Clock, Star, TrendingUp } from "lucide-react";
 import confetti from "canvas-confetti";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ResultsModalProps {
   isOpen: boolean;
@@ -25,6 +25,8 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
   score,
   difficulty
 }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -73,8 +75,26 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
     return "Não desista! A prática leva à perfeição!";
   };
   
+  // Play sounds based on performance
+  useEffect(() => {
+    if (isOpen) {
+      if (correctAnswers === totalProblems) {
+        window.gameAudio?.playCorrect();
+      } else if (correctAnswers >= totalProblems * 0.7) {
+        window.gameAudio?.playCorrect();
+      } else {
+        window.gameAudio?.playIncorrect();
+      }
+    }
+  }, [isOpen, correctAnswers, totalProblems]);
+  
+  const handleContinue = () => {
+    setIsSaving(false);
+    onClose();
+  };
+  
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleContinue()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center">
@@ -123,8 +143,12 @@ const ResultsModal: React.FC<ResultsModalProps> = ({
         
         <DialogFooter>
           <div className="w-full flex flex-col sm:flex-row gap-2 justify-center">
-            <Button onClick={onClose} className="btn-primary w-full">
-              Continuar
+            <Button 
+              onClick={handleContinue} 
+              className="btn-primary w-full" 
+              disabled={isSaving}
+            >
+              {isSaving ? 'Salvando...' : 'Continuar'}
             </Button>
           </div>
         </DialogFooter>

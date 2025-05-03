@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Medal, Trophy, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getRankings } from "@/utils/storage";
+import { getRankings, fetchRankingsFromSupabase } from "@/utils/storage";
 import { GradeLevel, Ranking } from "@/types";
 import {
   Card,
@@ -22,18 +22,49 @@ const RankingPage = () => {
   const navigate = useNavigate();
   const [selectedGrade, setSelectedGrade] = useState<GradeLevel | 'all'>('all');
   const [rankings, setRankings] = useState<Ranking[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Load rankings based on selected grade
   useEffect(() => {
-    let filteredRankings: Ranking[];
+    const loadRankings = async () => {
+      setLoading(true);
+      
+      try {
+        let filteredRankings: Ranking[];
+        
+        if (selectedGrade === 'all') {
+          // Try to fetch from Supabase first, fall back to local storage
+          filteredRankings = await fetchRankingsFromSupabase();
+        } else {
+          // Try to fetch from Supabase with grade filter, fall back to local storage
+          filteredRankings = await fetchRankingsFromSupabase(selectedGrade);
+        }
+        
+        if (filteredRankings.length === 0) {
+          // If no results from Supabase, use local storage
+          if (selectedGrade === 'all') {
+            filteredRankings = getRankings();
+          } else {
+            filteredRankings = getRankings(selectedGrade);
+          }
+        }
+        
+        setRankings(filteredRankings);
+      } catch (error) {
+        console.error("Error loading rankings:", error);
+        
+        // Fall back to local storage
+        if (selectedGrade === 'all') {
+          setRankings(getRankings());
+        } else {
+          setRankings(getRankings(selectedGrade));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    if (selectedGrade === 'all') {
-      filteredRankings = getRankings();
-    } else {
-      filteredRankings = getRankings(selectedGrade);
-    }
-    
-    setRankings(filteredRankings);
+    loadRankings();
   }, [selectedGrade]);
   
   // Format time as MM:SS
@@ -115,7 +146,11 @@ const RankingPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              {rankings.length > 0 ? (
+              {loading ? (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500">Carregando ranking...</p>
+                </div>
+              ) : rankings.length > 0 ? (
                 <div className="space-y-3">
                   {/* Header Row */}
                   <div className="grid grid-cols-12 text-sm font-medium text-gray-500 border-b pb-2">

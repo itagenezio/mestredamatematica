@@ -19,8 +19,9 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, 
   const [name, setName] = useState('');
   const [grade, setGrade] = useState<GradeLevel>(6);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) {
@@ -33,6 +34,8 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, 
       return;
     }
     
+    setIsSubmitting(true);
+    
     const student: Student = {
       id: Date.now().toString(),
       name: name.trim(),
@@ -40,13 +43,23 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, 
       createdAt: new Date()
     };
     
-    saveStudent(student);
-    toast({
-      title: "Cadastro realizado!",
-      description: `Bem-vindo(a) ${name}! Você está pronto para jogar.`,
-    });
-    
-    onComplete(student);
+    try {
+      await saveStudent(student);
+      toast({
+        title: "Cadastro realizado!",
+        description: `Bem-vindo(a) ${name}! Você está pronto para jogar.`,
+      });
+      onComplete(student);
+    } catch (err) {
+      console.error('Error registering student:', err);
+      toast({
+        title: "Erro no cadastro",
+        description: "Houve um problema ao salvar seus dados. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -106,8 +119,9 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, 
             <Button 
               type="submit" 
               className="bg-primary hover:bg-primary/90 text-white"
+              disabled={isSubmitting}
             >
-              Cadastrar
+              {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
             </Button>
           </DialogFooter>
         </form>
