@@ -10,16 +10,7 @@ import Game from "./pages/Game";
 import Profile from "./pages/Profile";
 import Ranking from "./pages/Ranking";
 import NotFound from "./pages/NotFound";
-
-// Audio files for game sounds
-const correctSound = new Audio('/sounds/correct.mp3');
-const incorrectSound = new Audio('/sounds/incorrect.mp3');
-
-// Make audio available globally
-window.gameAudio = {
-  playCorrect: () => correctSound.play().catch(err => console.error("Audio error:", err)),
-  playIncorrect: () => incorrectSound.play().catch(err => console.error("Audio error:", err))
-};
+import { GameAudioProvider } from "@/contexts/GameAudioContext";
 
 const queryClient = new QueryClient();
 
@@ -28,16 +19,18 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/game-levels" element={<GameLevels />} />
-          <Route path="/game/:level" element={<Game />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/ranking" element={<Ranking />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <GameAudioProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/game-levels" element={<GameLevels />} />
+            <Route path="/game/:level" element={<Game />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/ranking" element={<Ranking />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </GameAudioProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

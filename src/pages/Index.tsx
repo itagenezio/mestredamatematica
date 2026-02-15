@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -67,7 +66,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="flex-grow container py-8 md:py-16">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-foreground">EEB PROFESSOR PEDRO TEIXEIRA BARROSO</h2>
+          <h2 className="text-2xl font-bold text-foreground">CENTRO DE EDUCAÇÃO INTEGRAL, INOVAÇÃO E TECNOLOGIA</h2>
           <p className="text-lg text-muted-foreground mt-2">Projeto desenvolvido pelo Prof. Genezio de Lavor</p>
         </div>
 

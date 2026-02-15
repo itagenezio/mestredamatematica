@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mestres da Matemática</string>
+    <string name="title_activity_main">Mestres da Matemática</string>
+    <string name="package_name">app.lovable.a707fe40b87c478c80fb9e5f57b1b37a</string>
+    <string name="custom_url_scheme">app.lovable.a707fe40b87c478c80fb9e5f57b1b37a</string>
+</resources>
