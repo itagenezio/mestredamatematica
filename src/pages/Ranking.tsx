@@ -124,10 +124,8 @@ const RankingPage = () => {
             onValueChange={(value) => setSelectedGrade(value === 'all' ? 'all' : Number(value) as GradeLevel)}
             className="w-full mb-6"
           >
-            <TabsList className="grid grid-cols-5">
+            <TabsList className="grid grid-cols-3">
               <TabsTrigger value="all">Todos</TabsTrigger>
-              <TabsTrigger value="6">6º Ano</TabsTrigger>
-              <TabsTrigger value="7">7º Ano</TabsTrigger>
               <TabsTrigger value="8">8º Ano</TabsTrigger>
               <TabsTrigger value="9">9º Ano</TabsTrigger>
             </TabsList>

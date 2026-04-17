@@ -23,50 +23,50 @@ const Profile = () => {
   const navigate = useNavigate();
   const [student, setStudent] = useState<Student | null>(null);
   const [results, setResults] = useState<GameResult[]>([]);
-  
+
   useEffect(() => {
     const loadedStudent = getStudent();
     if (!loadedStudent) {
       navigate('/');
       return;
     }
-    
+
     setStudent(loadedStudent);
     const studentResults = getStudentResults(loadedStudent.id);
     setResults(studentResults);
   }, [navigate]);
-  
+
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-  
+
   // Calculate stats
   const totalGames = results.length;
   const totalCorrectAnswers = results.reduce((sum, result) => sum + result.correctAnswers, 0);
   const totalPossibleAnswers = results.length * 10; // Each game has 10 problems
-  const averageAccuracy = totalPossibleAnswers > 0 
-    ? Math.round((totalCorrectAnswers / totalPossibleAnswers) * 100) 
+  const averageAccuracy = totalPossibleAnswers > 0
+    ? Math.round((totalCorrectAnswers / totalPossibleAnswers) * 100)
     : 0;
   const totalScore = results.reduce((sum, result) => sum + result.score, 0);
-  const averageTime = results.length > 0 
-    ? Math.round(results.reduce((sum, result) => sum + result.totalTime, 0) / results.length) 
+  const averageTime = results.length > 0
+    ? Math.round(results.reduce((sum, result) => sum + result.totalTime, 0) / results.length)
     : 0;
-  
+
   // Get best result by difficulty
   const getBestResultByDifficulty = (difficulty: string) => {
     const filteredResults = results.filter(result => result.difficulty === difficulty);
     if (filteredResults.length === 0) return null;
-    
+
     return filteredResults.reduce((best, current) => {
       if (current.score > best.score) return current;
       if (current.score === best.score && current.totalTime < best.totalTime) return current;
       return best;
     }, filteredResults[0]);
   };
-  
+
   const bestEasy = getBestResultByDifficulty('easy');
   const bestMedium = getBestResultByDifficulty('medium');
   const bestHard = getBestResultByDifficulty('hard');
@@ -81,9 +81,9 @@ const Profile = () => {
       <header className="bg-gradient-to-r from-primary to-mathPurple p-4 shadow-md">
         <div className="container mx-auto">
           <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate('/')}
               className="text-white hover:bg-white/20 mr-4"
             >
@@ -98,37 +98,45 @@ const Profile = () => {
       <main className="container py-8 flex-grow">
         <div className="max-w-4xl mx-auto">
           {/* Student Info */}
-          <Card className="mb-8 border-none shadow-lg">
+          <Card className="mb-8 border-none shadow-lg overflow-hidden">
             <CardHeader className="bg-gradient-to-r from-primary/20 to-mathPurple/20 rounded-t-lg">
-              <CardTitle className="text-2xl">{student.name}</CardTitle>
-              <CardDescription>
-                {student.grade}º Ano • Registro: {new Date(student.createdAt).toLocaleDateString('pt-BR')}
-              </CardDescription>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-3xl font-black text-slate-800">{student.name}</CardTitle>
+                  <CardDescription className="font-bold text-primary/70">
+                    {student.grade}º Ano • Registro: {new Date(student.createdAt).toLocaleDateString('pt-BR')}
+                  </CardDescription>
+                </div>
+                <div className="bg-white/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white shadow-sm">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">XP Total</div>
+                  <div className="text-2xl font-black text-primary">{student.xp || 0}</div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-softPink rounded-lg p-3 text-center">
-                  <BarChart4 className="h-5 w-5 mx-auto mb-1 text-mathRed" />
-                  <div className="text-sm text-gray-500">Jogos</div>
-                  <div className="text-xl font-bold">{totalGames}</div>
+                <div className="bg-[#f0f9ff] rounded-2xl p-4 text-center border border-blue-100">
+                  <BarChart4 className="h-6 w-6 mx-auto mb-1 text-blue-500" />
+                  <div className="text-xs font-bold text-slate-500 uppercase">Jogos</div>
+                  <div className="text-2xl font-black text-slate-800">{totalGames}</div>
                 </div>
-                
-                <div className="bg-softBlue rounded-lg p-3 text-center">
-                  <Medal className="h-5 w-5 mx-auto mb-1 text-mathBlue" />
-                  <div className="text-sm text-gray-500">Precisão</div>
-                  <div className="text-xl font-bold">{averageAccuracy}%</div>
+
+                <div className="bg-[#f0fdf4] rounded-2xl p-4 text-center border border-emerald-100">
+                  <Medal className="h-6 w-6 mx-auto mb-1 text-emerald-500" />
+                  <div className="text-xs font-bold text-slate-500 uppercase">Precisão</div>
+                  <div className="text-2xl font-black text-slate-800">{averageAccuracy}%</div>
                 </div>
-                
-                <div className="bg-softGreen rounded-lg p-3 text-center">
-                  <Clock className="h-5 w-5 mx-auto mb-1 text-mathGreen" />
-                  <div className="text-sm text-gray-500">Tempo Médio</div>
-                  <div className="text-xl font-bold">{formatTime(averageTime)}</div>
+
+                <div className="bg-[#fdf4ff] rounded-2xl p-4 text-center border border-purple-100">
+                  <Clock className="h-6 w-6 mx-auto mb-1 text-purple-500" />
+                  <div className="text-xs font-bold text-slate-500 uppercase">Média</div>
+                  <div className="text-2xl font-black text-slate-800">{formatTime(averageTime)}</div>
                 </div>
-                
-                <div className="bg-softYellow rounded-lg p-3 text-center">
-                  <Award className="h-5 w-5 mx-auto mb-1 text-mathYellow" />
-                  <div className="text-sm text-gray-500">Pontuação</div>
-                  <div className="text-xl font-bold">{totalScore}</div>
+
+                <div className="bg-[#fffbeb] rounded-2xl p-4 text-center border border-amber-100">
+                  <Award className="h-6 w-6 mx-auto mb-1 text-amber-500" />
+                  <div className="text-xs font-bold text-slate-500 uppercase">Pontos</div>
+                  <div className="text-2xl font-black text-slate-800">{totalScore}</div>
                 </div>
               </div>
             </CardContent>
@@ -136,11 +144,35 @@ const Profile = () => {
 
           {/* Results Tabs */}
           <Tabs defaultValue="best" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-8">
-              <TabsTrigger value="best">Melhores Resultados</TabsTrigger>
-              <TabsTrigger value="history">Histórico de Jogos</TabsTrigger>
+            <TabsList className="grid grid-cols-3 mb-8 bg-slate-100 p-1 rounded-2xl">
+              <TabsTrigger value="best" className="rounded-xl font-bold">Recordes</TabsTrigger>
+              <TabsTrigger value="achievements" className="rounded-xl font-bold">Conquistas</TabsTrigger>
+              <TabsTrigger value="history" className="rounded-xl font-bold">Histórico</TabsTrigger>
             </TabsList>
-            
+
+            <TabsContent value="achievements">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {/* Dynamically checking ACHIEVEMENTS */}
+                {(() => {
+                  const { ALL_ACHIEVEMENTS } = require("../utils/achievements");
+                  return ALL_ACHIEVEMENTS.map((ach: any) => {
+                    const isUnlocked = student.achievements?.includes(ach.id);
+                    return (
+                      <Card key={ach.id} className={`border-none shadow-sm transition-all ${isUnlocked ? 'bg-white' : 'bg-slate-50 opacity-60'}`}>
+                        <CardContent className="p-6 flex flex-col items-center text-center">
+                          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-3 shadow-md border-2 ${isUnlocked ? 'bg-gradient-to-br from-yellow-400 to-amber-600 border-white/50 text-white' : 'bg-slate-200 border-slate-300 grayscale text-slate-400'}`}>
+                            {ach.icon}
+                          </div>
+                          <h4 className={`font-black text-sm mb-1 ${isUnlocked ? 'text-slate-800' : 'text-slate-400'}`}>{ach.title}</h4>
+                          <p className="text-[10px] font-medium text-slate-400 leading-tight">{ach.description}</p>
+                        </CardContent>
+                      </Card>
+                    );
+                  });
+                })()}
+              </div>
+            </TabsContent>
+
             <TabsContent value="best">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Easy */}
@@ -178,7 +210,7 @@ const Profile = () => {
                     )}
                   </CardContent>
                 </Card>
-                
+
                 {/* Medium */}
                 <Card className={`border-2 ${bestMedium ? 'border-mathBlue/20' : 'border-gray-200'}`}>
                   <CardHeader className="bg-softBlue pb-2">
@@ -214,7 +246,7 @@ const Profile = () => {
                     )}
                   </CardContent>
                 </Card>
-                
+
                 {/* Hard */}
                 <Card className={`border-2 ${bestHard ? 'border-mathRed/20' : 'border-gray-200'}`}>
                   <CardHeader className="bg-softPink pb-2">
@@ -252,36 +284,35 @@ const Profile = () => {
                 </Card>
               </div>
             </TabsContent>
-            
+
             <TabsContent value="history">
               {results.length > 0 ? (
                 <div className="space-y-4">
                   {results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                     .map((result) => (
-                    <Card key={result.id} className="overflow-hidden">
-                      <div className={`h-2 ${
-                        result.difficulty === 'easy' ? 'bg-mathGreen' :
-                        result.difficulty === 'medium' ? 'bg-mathBlue' :
-                        'bg-mathRed'
-                      }`}></div>
-                      <CardContent className="pt-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <div className="font-bold">
-                              Nível: {result.difficulty === 'easy' ? 'Fácil' : result.difficulty === 'medium' ? 'Médio' : 'Difícil'}
+                      <Card key={result.id} className="overflow-hidden">
+                        <div className={`h-2 ${result.difficulty === 'easy' ? 'bg-mathGreen' :
+                            result.difficulty === 'medium' ? 'bg-mathBlue' :
+                              'bg-mathRed'
+                          }`}></div>
+                        <CardContent className="pt-4">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-bold">
+                                Nível: {result.difficulty === 'easy' ? 'Fácil' : result.difficulty === 'medium' ? 'Médio' : 'Difícil'}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {new Date(result.createdAt).toLocaleDateString('pt-BR')} • {formatTime(result.totalTime)}
+                              </div>
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {new Date(result.createdAt).toLocaleDateString('pt-BR')} • {formatTime(result.totalTime)}
+                            <div className="text-right">
+                              <div className="text-xl font-bold">{result.score} pts</div>
+                              <div className="text-sm text-gray-500">{result.correctAnswers}/10 acertos</div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-xl font-bold">{result.score} pts</div>
-                            <div className="text-sm text-gray-500">{result.correctAnswers}/10 acertos</div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
               ) : (
                 <Card>

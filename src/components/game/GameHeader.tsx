@@ -38,7 +38,11 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                             <ArrowLeft />
                         </Button>
                         <h1 className="text-xl md:text-2xl font-bold text-white">
-                            Nível: {difficulty === 'easy' ? 'Fácil' : difficulty === 'medium' ? 'Médio' : 'Difícil'}
+                            Nível: {
+                                difficulty === 'easy' ? 'Fácil' : 
+                                difficulty === 'medium' ? 'Médio' : 
+                                difficulty === 'hard' ? 'Difícil' : '9º Ano'
+                            }
                         </h1>
                     </div>
                     <div className="flex items-center gap-2 md:gap-4">

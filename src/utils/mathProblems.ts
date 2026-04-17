@@ -8,21 +8,24 @@ const getRandomNumber = (min: number, max: number): number => {
 
 // Generate a random operation
 const getRandomOperation = (difficulty: DifficultyLevel): Operation => {
-  const operations: Operation[] = ['+', '-', '*', '/'];
+  const operations: Operation[] = ['+', '-', '*', '/', '^', 'sqrt', 'eq'];
   let weights: number[];
   
   switch (difficulty) {
-    case 'easy':
-      weights = [40, 40, 15, 5]; // Higher weights for addition and subtraction
+    case 'multiplication':
+      weights = [0, 0, 100, 0, 0, 0, 0]; // Only multiplication
       break;
-    case 'medium':
-      weights = [30, 30, 25, 15]; // Balanced weights
+    case 'division':
+      weights = [0, 0, 0, 100, 0, 0, 0]; // Only division
       break;
     case 'hard':
-      weights = [20, 20, 30, 30]; // Higher weights for multiplication and division
+      weights = [25, 25, 25, 25, 0, 0, 0]; // The four operations
+      break;
+    case 'grade9':
+      weights = [0, 0, 0, 30, 25, 25, 20]; // Division, Power, Root, and Equation
       break;
     default:
-      weights = [25, 25, 25, 25]; // Equal weights
+      weights = [25, 25, 25, 25, 0, 0, 0];
   }
   
   // Calculate total weight
@@ -60,9 +63,12 @@ const generateProblem = (difficulty: DifficultyLevel, operation: Operation): Mat
       } else if (difficulty === 'medium') {
         num1 = getRandomNumber(5, 25);
         num2 = getRandomNumber(5, 25);
-      } else {
+      } else if (difficulty === 'hard') {
         num1 = getRandomNumber(10, 50);
         num2 = getRandomNumber(10, 50);
+      } else {
+        num1 = getRandomNumber(20, 100);
+        num2 = getRandomNumber(20, 100);
       }
       answer = num1 + num2;
       problem = `${num1} + ${num2} = ?`;
@@ -71,46 +77,82 @@ const generateProblem = (difficulty: DifficultyLevel, operation: Operation): Mat
     case '-':
       if (difficulty === 'easy') {
         num2 = getRandomNumber(1, 10);
-        num1 = getRandomNumber(num2, 15); // Ensure num1 > num2 to avoid negative results
+        num1 = getRandomNumber(num2, 15); // Ensure positive
       } else if (difficulty === 'medium') {
         num2 = getRandomNumber(5, 20);
         num1 = getRandomNumber(num2, 35);
-      } else {
+      } else if (difficulty === 'hard') {
         num2 = getRandomNumber(10, 30);
         num1 = getRandomNumber(num2, 70);
+      } else {
+        num1 = getRandomNumber(10, 100);
+        num2 = getRandomNumber(10, 100); // Can be negative result
       }
       answer = num1 - num2;
       problem = `${num1} - ${num2} = ?`;
       break;
       
     case '*':
-      if (difficulty === 'easy') {
-        num1 = getRandomNumber(1, 5);
-        num2 = getRandomNumber(1, 5);
-      } else if (difficulty === 'medium') {
-        num1 = getRandomNumber(2, 10);
+      if (difficulty === 'multiplication') {
+        num1 = getRandomNumber(1, 10);
+        num2 = getRandomNumber(1, 10);
+      } else if (difficulty === 'hard') {
+        num1 = getRandomNumber(2, 12);
         num2 = getRandomNumber(2, 10);
       } else {
-        num1 = getRandomNumber(5, 12);
-        num2 = getRandomNumber(5, 12);
+        num1 = getRandomNumber(5, 20);
+        num2 = getRandomNumber(2, 15);
       }
       answer = num1 * num2;
       problem = `${num1} × ${num2} = ?`;
       break;
       
     case '/':
-      if (difficulty === 'easy') {
-        num2 = getRandomNumber(1, 5);
-        num1 = num2 * getRandomNumber(1, 5); // Ensure clean division
-      } else if (difficulty === 'medium') {
-        num2 = getRandomNumber(2, 10);
-        num1 = num2 * getRandomNumber(1, 8);
-      } else {
-        num2 = getRandomNumber(2, 12);
+      if (difficulty === 'division') {
+        num2 = getRandomNumber(1, 10);
         num1 = num2 * getRandomNumber(1, 10);
+      } else if (difficulty === 'hard') {
+        num2 = getRandomNumber(2, 10);
+        num1 = num2 * getRandomNumber(1, 10);
+      } else {
+        num2 = getRandomNumber(2, 20);
+        num1 = num2 * getRandomNumber(2, 15);
       }
       answer = num1 / num2;
       problem = `${num1} ÷ ${num2} = ?`;
+      break;
+
+    case '^':
+      // Potentiation: a^b
+      if (difficulty === 'grade9') {
+        num1 = getRandomNumber(2, 12); // Base
+        num2 = (num1 > 5) ? 2 : getRandomNumber(2, 3); // Exponent (limit to 2 or 3 for large bases)
+      } else {
+        num1 = getRandomNumber(1, 5);
+        num2 = 2;
+      }
+      answer = Math.pow(num1, num2);
+      problem = `${num1}${num2 === 2 ? '²' : num2 === 3 ? '³' : '^' + num2} = ?`;
+      break;
+
+    case 'sqrt':
+      // Square Root: √x
+      const root = difficulty === 'grade9' ? getRandomNumber(2, 15) : getRandomNumber(1, 10);
+      num1 = root * root; // x is a perfect square
+      answer = root;
+      problem = `√${num1} = ?`;
+      break;
+
+    case 'eq':
+      // 1st-degree equation: ax + b = c
+      const a = getRandomNumber(2, 8);
+      const x = getRandomNumber(1, 10);
+      const b = getRandomNumber(-10, 20);
+      const c = a * x + b;
+      answer = x;
+      const bSymbol = b >= 0 ? '+' : '-';
+      const absB = Math.abs(b);
+      problem = `${a}x ${bSymbol} ${absB} = ${c}`;
       break;
       
     default:

@@ -17,7 +17,7 @@ interface RegistrationModalProps {
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, onComplete }) => {
   const [name, setName] = useState('');
-  const [grade, setGrade] = useState<GradeLevel>(6);
+  const [grade, setGrade] = useState<GradeLevel>(8);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -88,7 +88,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ isOpen, onClose, 
               onValueChange={(value) => setGrade(Number(value) as GradeLevel)}
               className="flex flex-wrap gap-2"
             >
-              {[6, 7, 8, 9].map((gradeOption) => (
+              {[8, 9].map((gradeOption) => (
                 <div key={gradeOption} className="flex items-center">
                   <RadioGroupItem
                     value={String(gradeOption)}

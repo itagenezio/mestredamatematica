@@ -8,12 +8,24 @@ type AudioContextType = {
   toggleMute: () => void;
 };
 
-const GameAudioContext = createContext<AudioContextType | null>(null);
+const defaultContext: AudioContextType = {
+  playCorrect: () => {},
+  playIncorrect: () => {},
+  playCompletion: () => {},
+  isMuted: false,
+  toggleMute: () => {},
+};
+
+const GameAudioContext = createContext<AudioContextType>(defaultContext);
 
 export const GameAudioProvider = ({ children }: { children: React.ReactNode }) => {
   const [isMuted, setIsMuted] = React.useState(() => {
-    const saved = localStorage.getItem('gameMuted');
-    return saved === 'true';
+    try {
+      const saved = localStorage.getItem('gameMuted');
+      return saved === 'true';
+    } catch {
+      return false;
+    }
   });
 
   const correctSound = useRef<HTMLAudioElement | null>(null);
@@ -21,26 +33,32 @@ export const GameAudioProvider = ({ children }: { children: React.ReactNode }) =
   const completionSound = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    correctSound.current = new Audio('/sounds/correct.mp3');
-    incorrectSound.current = new Audio('/sounds/incorrect.mp3');
-    completionSound.current = new Audio('/sounds/final.mp3'); // We saw final.mp3 earlier
+    const loadAudio = (path: string) => {
+      const audio = new Audio(window.location.origin + path);
+      audio.preload = "auto";
+      audio.load();
+      return audio;
+    };
 
-    correctSound.current.load();
-    incorrectSound.current.load();
-    completionSound.current.load();
+    correctSound.current = loadAudio('/sounds/correct.mp3');
+    incorrectSound.current = loadAudio('/sounds/incorrect.mp3');
+    completionSound.current = loadAudio('/sounds/final.mp3');
   }, []);
 
-  const toggleMute = () => {
-    const newState = !isMuted;
-    setIsMuted(newState);
-    localStorage.setItem('gameMuted', String(newState));
-  };
-
-  const playSound = (audioRef: React.RefObject<HTMLAudioElement | null>) => {
+  const playSound = (audioRef: React.MutableRefObject<HTMLAudioElement | null>) => {
     if (isMuted) return;
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(e => console.error("Erro ao tocar o som:", e));
+
+    try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+
+        audioRef.current.play().catch(error => {
+          console.log("Erro ao tocar áudio:", error);
+        });
+      }
+    } catch (e) {
+      console.error("Erro ao tentar tocar som:", e);
     }
   };
 
@@ -48,17 +66,23 @@ export const GameAudioProvider = ({ children }: { children: React.ReactNode }) =
   const playIncorrect = () => playSound(incorrectSound);
   const playCompletion = () => playSound(completionSound);
 
+  const toggleMute = () => {
+    const newState = !isMuted;
+    setIsMuted(newState);
+    try {
+      localStorage.setItem('gameMuted', String(newState));
+    } catch {}
+  };
+
   return (
-    <GameAudioContext.Provider value={{ playCorrect, playIncorrect, playCompletion, isMuted, toggleMute }}>
+    <GameAudioContext.Provider
+      value={{ playCorrect, playIncorrect, playCompletion, isMuted, toggleMute }}
+    >
       {children}
     </GameAudioContext.Provider>
   );
 };
 
 export const useGameAudio = () => {
-  const context = useContext(GameAudioContext);
-  if (!context) {
-    throw new Error('useGameAudio deve ser usado dentro de um GameAudioProvider');
-  }
-  return context;
+  return useContext(GameAudioContext);
 };

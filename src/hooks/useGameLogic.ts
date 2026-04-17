@@ -83,13 +83,15 @@ export const useGameLogic = (difficulty: DifficultyLevel) => {
 
             let baseScore = 0;
             switch (difficulty) {
-                case 'easy': baseScore = 100; break;
-                case 'medium': baseScore = 200; break;
+                case 'multiplication': baseScore = 150; break;
+                case 'division': baseScore = 150; break;
                 case 'hard': baseScore = 300; break;
+                case 'grade9': baseScore = 400; break;
             }
 
             const timeBonus = Math.max(0, baseScore - Math.floor(totalTime / 2));
             const calculatedScore = (correctCount * baseScore) + timeBonus;
+            const xpEarned = Math.floor(calculatedScore / 10); // 10% do score como XP
 
             setScore(calculatedScore);
             setGameCompleted(true);
@@ -103,6 +105,7 @@ export const useGameLogic = (difficulty: DifficultyLevel) => {
                     correctAnswers: correctCount,
                     totalTime,
                     score: calculatedScore,
+                    xpEarned: xpEarned,
                     createdAt: new Date()
                 };
 

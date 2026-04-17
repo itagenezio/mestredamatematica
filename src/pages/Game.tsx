@@ -1,4 +1,5 @@
 import confetti from "canvas-confetti";
+import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle } from "lucide-react";
 import { DifficultyLevel } from "@/types";
@@ -67,7 +68,11 @@ const Game = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-[#f8fafc] relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-mathPurple/5 rounded-full blur-3xl" />
+
       <GameHeader
         difficulty={difficulty}
         onBack={() => navigate('/game-levels')}
@@ -79,19 +84,19 @@ const Game = () => {
       />
 
       {/* Game Board */}
-      <main className="container py-8 flex-grow flex flex-col">
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-bold">
-            Conecte as operações às respostas corretas
+      <main className="container py-8 flex-grow flex flex-col relative z-10 scale-95 md:scale-100 origin-top">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-black text-slate-800 mb-2">
+            Conecte as Operações
           </h2>
-          <p className="text-gray-600">
-            Clique em uma operação e depois na resposta correspondente
+          <p className="text-slate-500 font-bold">
+            Associe os desafios às respostas corretas para vencer
           </p>
         </div>
 
-        <div className="relative flex-grow flex">
+        <div className="relative flex-grow flex items-center">
           {/* Problems (left column) */}
-          <div className="w-1/2 pr-8 flex flex-col justify-center items-end" role="group" aria-label="Operações Matemáticas">
+          <div className="w-1/2 pr-4 md:pr-12 flex flex-col justify-center items-end" role="group" aria-label="Operações Matemáticas">
             {problems.map((problem) => {
               const connection = connections.find(c => c.problemId === problem.id);
               const isConnected = !!connection;
@@ -101,38 +106,32 @@ const Game = () => {
               return (
                 <Tooltip key={problem.id}>
                   <TooltipTrigger asChild>
-                    <div
+                    <motion.div
                       id={`problem-${problem.id}`}
                       role="button"
+                      whileHover={isConnected ? {} : { scale: 1.05 }}
+                      whileTap={isConnected ? {} : { scale: 0.95 }}
                       tabIndex={isConnected ? -1 : 0}
-                      aria-label={`Operação: ${problem.problem}`}
-                      aria-pressed={isSelected}
-                      aria-disabled={isConnected}
-                      className={`${isCorrect ? 'bg-softGreen animate-pop' :
-                        isConnected ? 'bg-softRed' :
-                          isSelected ? 'bg-primary/10 border-2 border-primary ring-2 ring-primary ring-offset-2' : 'bg-white border-2'
-                        } rounded-lg p-4 mb-4 shadow-sm hover:shadow-md transition-all cursor-pointer w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                      className={`${isCorrect ? 'bg-mathGreen text-white' :
+                        isConnected ? 'bg-mathRed text-white opacity-60' :
+                        isSelected ? 'bg-white border-primary shadow-lg ring-2 ring-primary ring-offset-2 scale-105' : 
+                        'bg-white/80 border-slate-200'
+                        } rounded-2xl p-5 mb-5 shadow-lg border-2 transition-all cursor-pointer w-full max-w-xs focus:outline-none backdrop-blur-md`}
                       onClick={() => handleProblemSelect(problem.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleProblemSelect(problem.id);
-                        }
-                      }}
                     >
-                      <div className="text-xl font-bold text-center">
+                      <div className="text-xl md:text-2xl font-black text-center tracking-tight">
                         {problem.problem}
                       </div>
                       {isConnected && (
-                        <div className="mt-1 flex justify-center">
+                        <div className="mt-2 flex justify-center">
                           {isCorrect ? (
-                            <CheckCircle className="text-mathGreen h-5 w-5" />
+                            <CheckCircle className="text-white h-6 w-6" />
                           ) : (
-                            <XCircle className="text-mathRed h-5 w-5" />
+                            <XCircle className="text-white h-6 w-6" />
                           )}
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   </TooltipTrigger>
                   {isConnected && (
                     <TooltipContent>
@@ -151,37 +150,31 @@ const Game = () => {
           />
 
           {/* Answers (right column) */}
-          <div className="w-1/2 pl-8 flex flex-col justify-center items-start" role="group" aria-label="Respostas">
+          <div className="w-1/2 pl-4 md:pl-12 flex flex-col justify-center items-start" role="group" aria-label="Respostas">
             {answers.map((answer) => {
               const isConnected = isAnswerCorrectlyConnected(answer);
               return (
                 <Tooltip key={answer}>
                   <TooltipTrigger asChild>
-                    <div
+                    <motion.div
                       id={`answer-${answer}`}
                       role="button"
+                      whileHover={isConnected ? {} : { scale: 1.05 }}
+                      whileTap={isConnected ? {} : { scale: 0.95 }}
                       tabIndex={isConnected ? -1 : 0}
-                      aria-label={`Resposta: ${answer}`}
-                      aria-disabled={isConnected}
-                      className={`${isConnected ? 'bg-softGreen animate-pop' :
-                        selectedProblem ? 'bg-white hover:bg-primary/10 hover:border-primary' : 'bg-white'
-                        } rounded-lg p-4 mb-4 border-2 shadow-sm hover:shadow-md transition-all ${selectedProblem ? 'cursor-pointer' : 'cursor-default'
-                        } w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                      className={`${isConnected ? 'bg-mathGreen text-white' :
+                        selectedProblem ? 'bg-white hover:border-primary border-slate-200 shadow-xl' : 'bg-white/80 border-slate-200'
+                        } rounded-2xl p-5 mb-5 border-2 shadow-lg transition-all ${selectedProblem ? 'cursor-pointer' : 'cursor-default'
+                        } w-full max-w-xs focus:outline-none backdrop-blur-md`}
                       onClick={(e) => onAnswerClick(answer, e)}
-                      onKeyDown={(e) => {
-                        if ((e.key === 'Enter' || e.key === ' ') && selectedProblem) {
-                          e.preventDefault();
-                          onAnswerClick(answer, e);
-                        }
-                      }}
                     >
-                      <div className="text-xl font-bold text-center">{answer}</div>
+                      <div className="text-xl md:text-2xl font-black text-center">{answer}</div>
                       {isConnected && (
-                        <div className="mt-1 flex justify-center">
-                          <CheckCircle className="text-mathGreen h-5 w-5" />
+                        <div className="mt-2 flex justify-center">
+                          <CheckCircle className="text-white h-6 w-6" />
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   </TooltipTrigger>
                   {isConnected && (
                     <TooltipContent>
